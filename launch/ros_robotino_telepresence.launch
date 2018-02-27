@@ -4,15 +4,58 @@
 	<!-- ***************** Arguments ********************* -->
 	<arg name="kinect"					default="False" />
 	<arg name="tracking"				default="False" />
+	<arg name="recording"				default="True" />
+	<arg name="console"					default="False" />
 
 	<arg name="set_robotino_address"	default="192.168.1.3" />
+	<arg name="set_tid_pipes"			default="[/bus, /dev]" />
+	<arg name="set_tic_pipes2ros"		default="[/ctrl2]" />
+	<arg name="set_bag_name"			default="test.bag" />
+	<arg name="set_save_dir"			default="$(env CNBITKDATA_ROOT)" />
 	<!-- ************************************************* -->
 
-	<machine name="robot" address="robot" env-loader="/home/robotino/cnbiros_ws/test.sh" user="robotino" password="pwd4cnbi"/>
+	<machine name="robot" address="robot" env-loader="$HOME/.cnbiros/scripts/cnbiros_environment_setup.sh" user="robotino" password="pwd4cnbi"/>
 
-	<node machine="robot" name="robotino" pkg="cnbiros_robotino" type="ros_robotino" output="screen" >
-		<rosparam subst_value="True" param="address">$(arg set_robotino_address)</rosparam>
+
+	<node pkg="rqt_console" name="rqt_console" type="rqt_console" if="$(arg console)" />
+
+	<!-- ************ Robotino ***************** -->
+	<group>
+		<node machine="robot" name="ros_robotino" pkg="cnbiros_robotino" type="ros_robotino" output="screen" >
+			<rosparam subst_value="True" param="address">$(arg set_robotino_address)</rosparam>
+		</node>
+		
+		<!-- ************ BCI bridge ***************** -->
+		<node machine="robot" name="bci_bridge" pkg="cnbiros_telepresence" type="ros_robotino_bcibridge" output="screen" />
+
+		<!-- ************ Fusion ***************** -->
+		<node machine="robot" name="attractors" pkg="cnbiros_telepresence" type="ros_robotino_attractors" output="screen" />
+		<node machine="robot" name="repellors" pkg="cnbiros_telepresence" type="ros_robotino_repellors" output="screen" />
+
+		<!-- ************ State control ***************** -->
+		<node machine="robot" name="state_control" pkg="cnbiros_telepresence" type="ros_robotino_statecontrol" output="screen" />
+
+		<!-- ************ Forcefield navigation ***************** -->
+		<node machine="robot" name="navigation" pkg="cnbiros_telepresence" type="ros_robotino_navigation" output="screen" />
+
+		<!-- **************** TO BE ADDED KINECT ********************** -->
+	</group>
+
+
+	<!-- ***************** CNBI interfaces ********************* -->
+	<node pkg="cnbiros_bci" type="rostid" name="rostid" output="screen" >
+		<rosparam subst_value="True" param="tid_pipes">$(arg set_tid_pipes)</rosparam>
 	</node>
+	<node pkg="cnbiros_bci" type="rostic" name="rostic" output="screen" >
+		<rosparam subst_value="True" param="tic_pipes2ros">$(arg set_tic_pipes2ros)</rosparam>
+	</node>
+	
+	<!-- ***************** ROS bag recording ********************* -->
+	<group if="$(arg recording)">
+		<node pkg="rosbag" type="record" name="rosbag_record" args=" -O $(arg set_save_dir)/$(arg set_bag_name) record /odom /cmd_vel /rostic_cnbi2ros /rostid_cnbi2ros" />
+	</group>
+
+
 
 </launch>
 
