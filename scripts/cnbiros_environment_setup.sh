@@ -12,4 +12,14 @@ export ROS_MASTER_URI=http://$ROS_MASTER_MACHINE:11311
 export ROS_HOSTNAME=$ROS_LOCAL_MACHINE
 export ROS_IP=$(getent hosts $ROS_HOSTNAME | awk '{print $1}')
 
+# LOCAL
+if [ -d "$HOME/Local" ] ; then
+export PATH="$HOME/Local/bin:$PATH"
+export LIBRARY_PATH=$HOME/Local/lib/
+export LD_LIBRARY_PATH=$HOME/Local/lib:$LD_LIBRARY_PATH
+export CPATH=$HOME/Local/include/
+export CPLUS_INCLUDE_PATH=$CPLUS_INCLUDE_PATH:$HOME/Local/include/
+fi
+
+
 exec "$@"
