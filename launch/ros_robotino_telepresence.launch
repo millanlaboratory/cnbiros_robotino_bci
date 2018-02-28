@@ -11,7 +11,7 @@
 	<arg name="set_tid_pipes"			default="[/bus, /dev]" />
 	<arg name="set_tic_pipes2ros"		default="[/ctrl2]" />
 	<arg name="set_bag_name"			default="test.bag" />
-	<arg name="set_save_dir"			default="$(env CNBITKDATA_ROOT)" />
+	<arg name="set_save_dir"			default="/mnt/data/cnbitk_data/" />
 	<!-- ************************************************* -->
 
 	<machine name="robot" address="robot" env-loader="$HOME/.cnbiros/scripts/cnbiros_environment_setup.sh" user="robotino" password="pwd4cnbi"/>

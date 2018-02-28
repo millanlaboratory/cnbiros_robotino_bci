@@ -13,7 +13,7 @@
     </include>
 
     <!-- Rosbag -->
-	<node pkg="rosbag" type="record" name="rosbag_record_tracking" args=" -O $(env CNBITKDATA_ROOT)/$(arg set_bag_name) record /kinect2/hd/image_color/compressed" />		
+	<node pkg="rosbag" type="record" name="rosbag_record_tracking" args=" -O $(arg set_save_dir)/$(arg set_bag_name) record /kinect2/hd/image_color/compressed" />		
 
    
 </launch>
