@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<launch>
+
+	<arg name="set_machine" />
+	<arg name="set_bag_name" />
+	<arg name="set_save_dir" />
+
+    <!-- start sensor-->
+    <include file="$(find cnbiros_robotino_bci)/launch/kinect2_bridge.launch">
+		<arg name="machine" value="$(arg set_machine)" />
+        <arg name="fps_limit" default="10"/>
+    </include>
+
+    <!-- Rosbag -->
+	<node pkg="rosbag" type="record" name="rosbag_record_tracking" args=" -O $(arg set_save_dir)/$(arg set_bag_name) record /kinect2/hd/image_color/compressed" />		
+
+   
+</launch>

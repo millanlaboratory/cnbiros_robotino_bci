@@ -17,8 +17,31 @@
 	<machine name="robot" address="robot" env-loader="$HOME/.cnbiros/scripts/cnbiros_environment_setup.sh" user="robotino" password="pwd4cnbi"/>
 
 
-	<node pkg="rqt_console" name="rqt_console" type="rqt_console" if="$(arg console)" />
 
+	<!-- **********************************************************	-->
+	<!--						LOCAL MACHINE						--> 
+	<!-- **********************************************************	-->
+
+	<!-- ***************** rqt console (optional) ************ -->
+	<node pkg="rqt_console" name="rqt_console" type="rqt_console" if="$(arg console)" />
+	
+	<!-- ***************** CNBI interfaces ********************	-->
+	<node pkg="cnbiros_bci" type="rostid" name="rostid" output="screen" >
+		<rosparam subst_value="True" param="tid_pipes">$(arg set_tid_pipes)</rosparam>
+	</node>
+	<node pkg="cnbiros_bci" type="rostic" name="rostic" output="screen" >
+		<rosparam subst_value="True" param="tic_pipes2ros">$(arg set_tic_pipes2ros)</rosparam>
+	</node>
+	
+	<!-- ***************** ROS bag recording ********************* -->
+	<group if="$(arg recording)">
+		<node pkg="rosbag" type="record" name="rosbag_record" args=" -O $(arg set_save_dir)/$(arg set_bag_name) record /odom /cmd_vel /rostic_cnbi2ros /rostid_cnbi2ros" />
+	</group>
+	
+	<!-- **********************************************************	-->
+	<!--						ROBOT MACHINE						--> 
+	<!-- **********************************************************	-->
+	
 	<!-- ************ Robotino ***************** -->
 	<group>
 		<node machine="robot" name="ros_robotino" pkg="cnbiros_robotino" type="ros_robotino" output="screen" >
@@ -42,19 +65,18 @@
 	</group>
 
 
-	<!-- ***************** CNBI interfaces ********************* -->
-	<node pkg="cnbiros_bci" type="rostid" name="rostid" output="screen" >
-		<rosparam subst_value="True" param="tid_pipes">$(arg set_tid_pipes)</rosparam>
-	</node>
-	<node pkg="cnbiros_bci" type="rostic" name="rostic" output="screen" >
-		<rosparam subst_value="True" param="tic_pipes2ros">$(arg set_tic_pipes2ros)</rosparam>
-	</node>
-	
-	<!-- ***************** ROS bag recording ********************* -->
-	<group if="$(arg recording)">
-		<node pkg="rosbag" type="record" name="rosbag_record" args=" -O $(arg set_save_dir)/$(arg set_bag_name) record /odom /cmd_vel /rostic_cnbi2ros /rostid_cnbi2ros" />
-	</group>
+	<!-- **********************************************************	-->
+	<!--						TRACKING MACHINE					--> 
+	<!-- **********************************************************	-->
 
+	<group if="$(arg tracking)">
+		<machine name="tracking" address="tracking" env-loader="$HOME/.cnbiros/scripts/cnbiros_environment_setup.sh" user="cnbiadmin" password="s2+c2=lne" default="true"/>
+		<include file="$(find cnbiros_robotino_bci)/launch/ros_robotino_tracking_kinect2.launch" >
+			<arg name="set_machine" value="tracking" />
+			<arg name="set_bag_name" value="$(arg set_bag_name)" />
+			<arg name="set_save_dir" value="$(arg set_save_dir)" />
+		</include>
+	</group>
 
 
 </launch>
